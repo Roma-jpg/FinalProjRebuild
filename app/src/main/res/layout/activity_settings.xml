@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+    android:id="@+id/theme_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Тема:"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    android:layout_marginTop="12dp" />
+
+    <RadioGroup
+        android:id="@+id/theme_radio_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toEndOf="@id/theme_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/theme_label">
+
+        <RadioButton
+            android:id="@+id/theme_light_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Стандартная"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/theme_dark_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Тёмная"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/support_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Режим ментальной поддержки:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/theme_radio_group"
+        android:layout_marginTop="12dp" />
+
+    <RadioGroup
+        android:id="@+id/support_radio_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toEndOf="@id/support_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/support_label">
+
+        <RadioButton
+            android:id="@+id/support_off_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Выкл"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/support_on_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Вкл"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/score_system_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Система баллов:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/support_radio_group"
+        android:layout_marginTop="12dp" />
+
+    <RadioGroup
+        android:id="@+id/score_system_radio_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toEndOf="@id/score_system_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/score_system_label">
+
+        <RadioButton
+            android:id="@+id/score_system_a_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Вкл"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/score_system_b_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Выкл"/>
+
+    </RadioGroup>
+
+
+
+    <TextView
+        android:id="@+id/show_errors_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Показывать ошибки:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/score_system_radio_group"
+        android:layout_marginTop="24dp"
+        />
+
+    <Switch
+        android:id="@+id/show_errors_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOff="Выкл"
+        android:textOn="Вкл"
+        tools:ignore="UseSwitchCompatOrMaterialXml"
+        app:layout_constraintBaseline_toBaselineOf="@id/show_errors_label"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <Button
+        android:id="@+id/confirm_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Подтвердить"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="0dp" />
+
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:menu="@menu/drawer_menu"
+            tools:ignore="MissingConstraints" />
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
