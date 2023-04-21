@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -31,6 +32,8 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private Button shareButton;
+    private String textToShare;
 
 
     @Override
@@ -38,37 +41,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        System.out.println("onCreate() method is called");
+
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
 
-// Set the item selected listener on the NavigationView
-        // Set the item selected listener on the NavigationView
-        navigationView.setNavigationItemSelectedListener(
-                item -> {
-                    switch (item.getItemId()) {
-                        case R.id.nav_home:
-                            // Show toast with "Home Fragment selected"
-                            Toast.makeText(MainActivity.this, "Home Fragment selected", Toast.LENGTH_SHORT).show();
-                            System.out.println("Home Fragment selected");
-                            break;
-                        case R.id.nav_settings:
-                            // Show toast with "Settings Fragment selected"
-                            Toast.makeText(MainActivity.this, "Settings Fragment selected", Toast.LENGTH_SHORT).show();
-                            System.out.println("Settings Fragment selected");
-                            break;
-                        case R.id.nav_profile:
-                            // Show toast with "Info Fragment selected"
-                            Toast.makeText(MainActivity.this, "Info Fragment selected", Toast.LENGTH_SHORT).show();
-                            System.out.println("Info Fragment selected");
-                            break;
-                    }
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    return true;
-                });
-
-
-
-        // Add a hamburger icon to the action bar
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -76,7 +53,32 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // Set up click listener for hamburger icon in toolbar
+        navigationView.bringToFront();
+        navigationView.requestLayout();
+
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.nav_home:
+                                Toast.makeText(MainActivity.this, "Home Fragment selected", Toast.LENGTH_SHORT).show();
+                                System.out.println("Home Fragment selected");
+                                break;
+                            case R.id.nav_settings:
+                                Toast.makeText(MainActivity.this, "Settings Fragment selected", Toast.LENGTH_SHORT).show();
+                                System.out.println("Settings Fragment selected");
+                                break;
+                            case R.id.nav_profile:
+                                Toast.makeText(MainActivity.this, "Info Fragment selected", Toast.LENGTH_SHORT).show();
+                                System.out.println("Info Fragment selected");
+                                break;
+                        }
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        return true;
+                    }
+                });
+
         toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,30 +98,39 @@ public class MainActivity extends AppCompatActivity {
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Открытие диалога выбора даты
+                System.out.println("dateButton onClick() method is called");
                 DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                // Обновление текста кнопки с выбранной датой
+                                System.out.println("DatePicker is active.");
                                 String dateString = String.format(Locale.getDefault(), "%02d.%02d.%04d",
                                         dayOfMonth, month + 1, year);
                                 dateButton.setText(dateString);
                             }
                         },
-                        // Установка текущей даты в качестве значения по умолчанию
                         Calendar.getInstance().get(Calendar.YEAR),
                         Calendar.getInstance().get(Calendar.MONTH),
                         Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
             }
         });
+
+        textToShare = "Example text to send via messengers and others.";
+        shareButton = findViewById(R.id.share_button);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(Intent.EXTRA_TEXT, textToShare);
+                startActivity(Intent.createChooser(sharingIntent, "Отправить ДЗ через:"));
+            }
+        });
     }
-
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        System.out.println("OnOptionsItemSelected method is called!!!!!!!");
+        System.out.println("OnOptionsItemSelected() method is called");
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
@@ -136,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void replaceFragment(Fragment fragment) {
+        System.out.println("replaceFragment() is called.");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_container_main, fragment);

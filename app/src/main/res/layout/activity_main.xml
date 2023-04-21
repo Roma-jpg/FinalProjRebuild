@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="4dp"
-                android:text="1.01.2022"
+                android:text="@string/date_placeholder"
                 android:textColor="@android:color/white" />
 
             <!-- Share Button -->
@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:text="Share"
+                android:text="@string/share_placeholder"
                 android:textColor="@android:color/white" />
 
             <!-- Text View -->
