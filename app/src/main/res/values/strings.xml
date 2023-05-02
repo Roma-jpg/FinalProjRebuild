@@ -25,4 +25,20 @@
     <string name="no_internet_connection">Отсутствует подключение к интернету</string>
     <string name="no_internet_connection_2">Это приложение не может работать корректно при отсутствии интернета. \nВключите интернет и нажмите "Ок."</string>
     <string name="ok">Ок</string>
+    <string name="question1_text">Как вы узнали про наше приложение?</string>
+    <string name="question2_text">Сколько вам лет?</string>
+    <string name="answer1_option1_text">Реклама</string>
+    <string name="answer1_option2_text">По совету друзей/родственников</string>
+    <string name="answer1_option3_text">Нашёл в PlayMarket</string>
+    <string name="answer2_option1_text">9-12</string>
+    <string name="answer2_option2_text">13-16</string>
+    <string name="answer2_option3_text">18 и больше</string>
+    <string name="submit_button_text">Подтвердить</string>
+    <string name="welcome_text">Позвольте нам провести небольшой опрос:</string>
+    <string name="question3_text">Как вы сообираетесь использовать наше приложение?</string>
+    <string name="answer3_option1_text">Личное пользование</string>
+    <string name="answer3_option2_text">Для школы</string>
+    <string name="answer3_option3_text">Другое</string>
+    <string name="greetings">Приветствуем вас в моём приложении - RomeoDiary. \nЭто приложение легко и быстро покажет вам какое домашнее задание вам задали на сегодня и какие оценки вы получили.</string>
+    <string name="start_button_text">НАЧНЁМ!</string>
 </resources>

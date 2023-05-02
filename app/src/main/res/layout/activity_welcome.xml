@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/parchment_light"
+    android:layout_centerHorizontal="true"
+    >
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/welcome_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:src="@drawable/welcome_image"
+        android:scaleType="fitXY"
+        android:layout_centerHorizontal="true"
+        app:riv_corner_radius="12dp"
+        app:riv_mutate_background="true"
+        android:layout_marginStart="48dp"
+        app:riv_tile_mode="clamp"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/title_text_view"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="48dp"
+        />
+
+    <TextView
+        android:id="@+id/title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Здравствуйте!"
+        android:textSize="28sp"
+        android:textColor="@color/black"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+    <TextView
+        android:id="@+id/greetings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_text_view"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:text="@string/greetings"/>
+
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/custom_button"
+        android:text="@string/start_button_text"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="18dp"
+        android:textSize="18sp"/>
+
+</RelativeLayout>

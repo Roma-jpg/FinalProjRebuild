@@ -1,5 +1,18 @@
 package ru.romeo558.myprojectrebuild;
 
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,23 +21,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -77,16 +73,13 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.nav_home:
-                                Toast.makeText(MainActivity.this, "Home Fragment selected", Toast.LENGTH_SHORT).show();
-                                System.out.println("Home Fragment selected");
+                                //Do nothing, so we already on MainActivity
                                 break;
                             case R.id.nav_settings:
-                                Toast.makeText(MainActivity.this, "Settings Fragment selected", Toast.LENGTH_SHORT).show();
-                                System.out.println("Settings Fragment selected");
+                                replaceFragmentAnimated(new SettingsFragment());
                                 break;
                             case R.id.nav_profile:
-                                Toast.makeText(MainActivity.this, "Info Fragment selected", Toast.LENGTH_SHORT).show();
-                                System.out.println("Info Fragment selected");
+                                replaceFragmentAnimated(new InfoFragment());
                                 break;
                         }
                         drawerLayout.closeDrawer(GravityCompat.START);
@@ -136,10 +129,14 @@ public class MainActivity extends AppCompatActivity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType("text/plain");
-                sharingIntent.putExtra(Intent.EXTRA_TEXT, textToShare);
-                startActivity(Intent.createChooser(sharingIntent, "Отправить ДЗ через:"));
+//                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+//                sharingIntent.setType("text/plain");
+//                sharingIntent.putExtra(Intent.EXTRA_TEXT, textToShare);
+//                startActivity(Intent.createChooser(sharingIntent, "Отправить ДЗ через:"));
+                Intent welcomeIntent = new Intent(MainActivity.this, WelcomeActivity.class);
+                setActivityStartAnimation(welcomeIntent);
+                startActivity(welcomeIntent);
+                finish();
             }
         });
     }
@@ -169,10 +166,31 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    public void replaceFragmentAnimated(Fragment fragment) {
+        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right);
+        fragmentTransaction.replace(R.id.frame_container_main, fragment);
+        fragmentTransaction.commit();
+    }
+
+    private void setActivityStartAnimation(Intent intent) {
+        drawerLayout.closeDrawer(GravityCompat.START);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+    }
+
+
     private boolean isInternetAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
+
 
 }
