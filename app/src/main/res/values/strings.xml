@@ -41,4 +41,17 @@
     <string name="answer3_option3_text">Другое</string>
     <string name="greetings">Приветствуем вас в моём приложении - RomeoDiary. \nЭто приложение легко и быстро покажет вам какое домашнее задание вам задали на сегодня и какие оценки вы получили.</string>
     <string name="start_button_text">НАЧНЁМ!</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="app_name_full">Romeo558\'s Diary</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="authentificate">Войти</string>
 </resources>

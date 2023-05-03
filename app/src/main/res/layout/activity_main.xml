@@ -27,7 +27,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="4dp"
                 android:text="@string/date_placeholder"
-                android:background="@drawable/custom_button"
+                android:background="@drawable/custom_button_solid"
                 android:textColor="@android:color/black" />
 
             <!-- Share Button -->
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:text="@string/share_placeholder"
-                android:background="@drawable/custom_button"
+                android:background="@drawable/custom_button_solid"
                 android:textColor="@android:color/black" />
 
             <!-- Text View -->

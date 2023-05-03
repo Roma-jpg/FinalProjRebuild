@@ -14,5 +14,9 @@
     <color name="parchment_light">#FDFCF8</color>
     <color name="parchment_rose">#FFE6CC</color>
     <color name="parchment_gray">#D8D4CB</color>
+    <color name="parchment_blocked">#A8A398</color>
     <color name="parchment_dark_status_bar">#DCCDAB</color>
+    <color name="parchment_solid_button">#FCF3E3</color>
+    <color name="gray">#2B2B2B</color>
+    <color name="light_gray">#E3E3E3</color>
 </resources>

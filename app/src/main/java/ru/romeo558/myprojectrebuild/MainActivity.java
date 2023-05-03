@@ -133,9 +133,9 @@ public class MainActivity extends AppCompatActivity {
 //                sharingIntent.setType("text/plain");
 //                sharingIntent.putExtra(Intent.EXTRA_TEXT, textToShare);
 //                startActivity(Intent.createChooser(sharingIntent, "Отправить ДЗ через:"));
-                Intent welcomeIntent = new Intent(MainActivity.this, WelcomeActivity.class);
-                setActivityStartAnimation(welcomeIntent);
-                startActivity(welcomeIntent);
+                Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                setActivityStartAnimation(loginIntent);
+                startActivity(loginIntent);
                 finish();
             }
         });
