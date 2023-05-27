@@ -75,9 +75,6 @@ public class MainActivity extends AppCompatActivity {
                             case R.id.nav_home:
                                 //Do nothing, so we already on MainActivity
                                 break;
-                            case R.id.nav_settings:
-                                replaceFragmentAnimated(new SettingsFragment());
-                                break;
                             case R.id.nav_profile:
                                 replaceFragmentAnimated(new InfoFragment());
                                 break;

@@ -39,11 +39,6 @@ public class HomeFragment extends Fragment {
                             case R.id.nav_home:
                                 // Do nothing as we are already in HomeFragment
                                 break;
-                            case R.id.nav_settings:
-                                // Start SettingsActivity
-//                                startActivity(new Intent(getActivity(), SettingsActivity.class));
-//                                getActivity().finish();
-                                break;
                             case R.id.nav_profile:
                                 // Start InfoActivity
 

@@ -18,6 +18,9 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".EasterEggActivity"
+            android:exported="false" />
+        <activity
             android:name=".SurveyActivity"
             android:exported="false" />
         <activity

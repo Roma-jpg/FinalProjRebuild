@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white"
+    android:gravity="center">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:riv_corner_radius="12dp"
+        android:src="@drawable/easter"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_corners"
+        android:layout_above="@id/congrats_text"
+        android:layout_marginBottom="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/congrats_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/greetings_easter_egg"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/custom_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/details_easter_egg"
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:layout_below="@id/congrats_text"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/return_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/back"
+        android:background="@drawable/custom_button_solid"
+        android:layout_below="@id/custom_text"
+        android:layout_marginTop="32dp"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

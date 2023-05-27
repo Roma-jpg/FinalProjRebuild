@@ -35,12 +35,6 @@ public class InfoFragment extends Fragment {
                             startActivity(new Intent(getActivity(),MainActivity.class));
                             requireActivity().finish();
                             break;
-                        case R.id.nav_settings:
-                            // Replace the current fragment with the SettingsFragment
-                            requireActivity().getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.frame_container_main, new SettingsFragment())
-                                    .commit();
-                            break;
                         case R.id.nav_profile:
                             // Do nothing as we are already in InfoFragment
                             break;

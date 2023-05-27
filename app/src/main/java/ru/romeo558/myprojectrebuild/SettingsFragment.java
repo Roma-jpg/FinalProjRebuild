@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
 
@@ -18,9 +19,11 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.Objects;
+import ru.romeo558.myprojectrebuild.InfoFragment;
+import ru.romeo558.myprojectrebuild.MainActivity;
+import ru.romeo558.myprojectrebuild.R;
 
-public class SettingsFragment extends Fragment{
+public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
 
@@ -28,17 +31,11 @@ public class SettingsFragment extends Fragment{
         // Required empty public constructor
     }
 
-
-
-
-    @SuppressLint("NonConstantResourceId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-
-
 
         // Set up menu item click listeners
         NavigationView navigationView = requireActivity().findViewById(R.id.navigation_view);
@@ -47,11 +44,8 @@ public class SettingsFragment extends Fragment{
                     // Handle navigation item clicks here
                     switch (item.getItemId()) {
                         case R.id.nav_home:
-                            startActivity(new Intent(getActivity(),MainActivity.class));
+                            startActivity(new Intent(getActivity(), MainActivity.class));
                             requireActivity().finish();
-                            break;
-                        case R.id.nav_settings:
-                            // Already in SettingsFragment
                             break;
                         case R.id.nav_profile:
                             requireActivity().getSupportFragmentManager().beginTransaction()
@@ -67,10 +61,9 @@ public class SettingsFragment extends Fragment{
                     return true;
                 });
 
-
         // Initialize views
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch errorSwitch = view.findViewById(R.id.error_switch);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch mentalHelpSwitch = view.findViewById(R.id.mental_help_switch);
+        Switch errorSwitch = view.findViewById(R.id.error_switch);
+        Switch mentalHelpSwitch = view.findViewById(R.id.mental_help_switch);
         RadioGroup themeRadioGroup = view.findViewById(R.id.theme_radio_group);
 
         // Initialize SharedPreferences
@@ -103,12 +96,22 @@ public class SettingsFragment extends Fragment{
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt("theme", checkedId);
             editor.apply();
+
+            // Apply theme change
+            if (checkedId == R.id.light_theme_radio_button) {
+                requireActivity().setTheme(R.style.AppTheme_Light);
+            } else if (checkedId == R.id.dark_theme_radio_button) {
+                requireActivity().setTheme(R.style.AppTheme_Discord);
+            }
+
+            // Recreate the activity for the theme change to take effect
+            requireActivity().recreate();
         });
 
         return view;
     }
+
     public void setFragmentStartAnimation(FragmentTransaction transaction) {
         transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right, R.anim.slide_in_left, R.anim.slide_out_left);
     }
-
 }

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Xml;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,14 +20,16 @@ import org.xmlpull.v1.XmlSerializer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
+        setContentView(R.layout.activity_login);
+        Objects.requireNonNull(getSupportActionBar()).hide();
         EditText emailInput = findViewById(R.id.email_input);
         EditText passwordInput = findViewById(R.id.password_input);
         TextView appName = findViewById(R.id.textView);
@@ -71,11 +75,16 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                finish();
+                if (email.equals("Romeo558") && password.equals("Zz12345!!!")) {
+                    startActivity(new Intent(LoginActivity.this, EasterEggActivity.class));
+                    finish();
+                } else {
+                    // Normal login logic
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                }
             }
         });
-
     }
 
     private void saveCredentials(String email, String password) {
@@ -101,6 +110,4 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-
 }
