@@ -29,6 +29,10 @@
         <!-- Status bar color -->
         <item name="android:statusBarColor">#1E2124</item>
     </style>
+    <!-- Theme.AppCompat.Light.Dialog -->
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">#C8AC79</item>
+    </style>
 
 
 

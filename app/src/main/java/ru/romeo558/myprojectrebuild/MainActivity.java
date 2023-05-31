@@ -4,13 +4,19 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,9 +30,14 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -104,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.out.println("dateButton onClick() method is called");
-                DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this,
+                DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, R.style.DialogTheme,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -117,6 +128,12 @@ public class MainActivity extends AppCompatActivity {
                         Calendar.getInstance().get(Calendar.YEAR),
                         Calendar.getInstance().get(Calendar.MONTH),
                         Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+                Window dialogWindow = datePickerDialog.getWindow();
+                if (dialogWindow != null) {
+                    // Установка цвета фона окна диалога
+                    dialogWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FDFCF8")));
+                    dialogWindow.setNavigationBarColor(Color.parseColor("#FDFCF8"));
+                }
                 datePickerDialog.show();
             }
         });
@@ -136,6 +153,27 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+        String newName = getIntent().getStringExtra("student_name");
+        TextView student_name = findViewById(R.id.student_name);
+        student_name.setText(newName);
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        String jsonResponse = getIntent().getStringExtra("json_response");
+        try {
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+            GetHW getHW = new GetHW(jsonObject);
+            List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
+
+            ListView listView = findViewById(R.id.myListView);
+            List<GetHW.Entry> allEntries = new ArrayList<>();
+            for (GetHW.DayEntry dayEntry : diaryEntries) {
+                allEntries.addAll(dayEntry.entries);
+            }
+            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, allEntries);
+            listView.setAdapter(adapter);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
