@@ -10,12 +10,15 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -159,21 +162,53 @@ public class MainActivity extends AppCompatActivity {
 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         String jsonResponse = getIntent().getStringExtra("json_response");
+        ListView listView = findViewById(R.id.myListView);
         try {
             JSONObject jsonObject = new JSONObject(jsonResponse);
             GetHW getHW = new GetHW(jsonObject);
             List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
 
-            ListView listView = findViewById(R.id.myListView);
+
             List<GetHW.Entry> allEntries = new ArrayList<>();
             for (GetHW.DayEntry dayEntry : diaryEntries) {
                 allEntries.addAll(dayEntry.entries);
             }
-            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, allEntries);
+
+            // Remove empty rows
+            List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
+            for (GetHW.Entry entry : allEntries) {
+                if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
+                    nonEmptyEntries.add(entry);
+                }
+            }
+
+            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, nonEmptyEntries);
             listView.setAdapter(adapter);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Обработка щелчка на элементе списка
+                // Отображение всплывающего меню здесь
+                showPopupMenu(view);
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                // Обработка удерживания на элементе списка
+                // Отображение всплывающего меню здесь
+                showPopupMenu(view);
+                return true; // Возвращаем true, чтобы предотвратить вызов обычного щелчка
+            }
+        });
+
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -226,6 +261,26 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
+    private void showPopupMenu(View anchorView) {
+        PopupMenu popupMenu = new PopupMenu(this, anchorView);
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
 
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.show_content) {
+                    // Действие для пункта "Показать подробное содержание"
+                    return true;
+                } else if (itemId == R.id.hide_rating) {
+                    // Действие для пункта "Скрыть оценку"
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        popupMenu.show();
+    }
 
 }
