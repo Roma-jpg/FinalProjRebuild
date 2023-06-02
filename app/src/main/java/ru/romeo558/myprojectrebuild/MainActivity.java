@@ -168,15 +168,16 @@ public class MainActivity extends AppCompatActivity {
             GetHW getHW = new GetHW(jsonObject);
             List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
 
-
-            List<GetHW.Entry> allEntries = new ArrayList<>();
+            List<GetHW.Entry> homeworkEntries = new ArrayList<>();
             for (GetHW.DayEntry dayEntry : diaryEntries) {
-                allEntries.addAll(dayEntry.entries);
+                if (dayEntry.dayLabel.equals("11")) { // Update to access dayLabel property
+                    homeworkEntries.addAll(dayEntry.entries);
+                }
             }
 
             // Remove empty rows
             List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-            for (GetHW.Entry entry : allEntries) {
+            for (GetHW.Entry entry : homeworkEntries) {
                 if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
                     nonEmptyEntries.add(entry);
                 }
@@ -187,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
 
 
 
@@ -270,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.show_content) {
-                    // Действие для пункта "Показать подробное содержание"
+                    Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.hide_rating) {
                     // Действие для пункта "Скрыть оценку"

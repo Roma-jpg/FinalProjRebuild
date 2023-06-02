@@ -28,7 +28,7 @@ public class GetHW {
     }
 
     public static class DayEntry {
-        private String dayLabel;
+        String dayLabel;
         List<Entry> entries;
 
         public DayEntry(String dayLabel, List<Entry> entries) {
