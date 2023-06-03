@@ -30,6 +30,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -60,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
 
             emailInput.setText(savedEmail);
             passwordInput.setText(savedPassword);
+            switchToMainActivity();
         }
 
         emailInput.setAlpha(0f);
@@ -135,7 +138,14 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject requestBody = new JSONObject();
                 requestBody.put("login", email);
                 requestBody.put("password", password);
-                requestBody.put("date", "13-05-2023");
+
+                LocalDate today = LocalDate.now();
+
+                // Форматируем дату в нужный формат (DD-MM-YYYY)
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                String formattedDate = today.format(formatter);
+
+                requestBody.put("date", formattedDate);
 
                 // Send the request body
                 OutputStream outputStream = connection.getOutputStream();
@@ -170,7 +180,6 @@ public class LoginActivity extends AppCompatActivity {
 
                     JSONObject jsonResponse = new JSONObject(unescapedResult);
                     String className = jsonResponse.getString("class_name");
-//                    String monthName = jsonResponse.getString("month_name");
                     String studentName = jsonResponse.getString("student_name");
                     System.out.printf("Class:%s, Student Name:%s", className, studentName);
 
@@ -227,5 +236,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         return builder.toString();
+    }
+    private void switchToMainActivity() {
+        boolean hasCred = sharedPreferences.getBoolean("hasStoredCredentials", false);
+        if (hasCred) {
+            // Start the MainActivity
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("hasCred", true);
+            intent.putExtra("fromLogin", true);
+            startActivity(intent);
+            finish();
+        }
     }
 }

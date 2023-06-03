@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                                 String dateString = String.format(Locale.getDefault(), "%02d.%02d.%04d",
                                         dayOfMonth, month + 1, year);
                                 dateButton.setText(dateString);
+                                System.out.printf("%d.%d.%d", dayOfMonth, month + 1, year);
                             }
                         },
                         Calendar.getInstance().get(Calendar.YEAR),
@@ -161,33 +162,44 @@ public class MainActivity extends AppCompatActivity {
         student_name.setText(newName);
 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         String jsonResponse = getIntent().getStringExtra("json_response");
+        String hasStored = getIntent().getStringExtra("hasCred");
         ListView listView = findViewById(R.id.myListView);
-        try {
-            JSONObject jsonObject = new JSONObject(jsonResponse);
-            GetHW getHW = new GetHW(jsonObject);
-            List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
-
-            List<GetHW.Entry> homeworkEntries = new ArrayList<>();
-            for (GetHW.DayEntry dayEntry : diaryEntries) {
-                if (dayEntry.dayLabel.equals("11")) { // Update to access dayLabel property
-                    homeworkEntries.addAll(dayEntry.entries);
-                }
-            }
-
-            // Remove empty rows
-            List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-            for (GetHW.Entry entry : homeworkEntries) {
-                if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
-                    nonEmptyEntries.add(entry);
-                }
-            }
-
-            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, nonEmptyEntries);
-            listView.setAdapter(adapter);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        boolean run = true;
+        if (jsonResponse == null && Objects.equals(hasStored, "true")){
+            RequestHW request = new RequestHW();
+            request.execute("example@example.com", "password123", "13-05-2023");
         }
+        if (run){
+
+            try {
+                JSONObject jsonObject = new JSONObject(jsonResponse);
+                GetHW getHW = new GetHW(jsonObject);
+                List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
+
+                List<GetHW.Entry> homeworkEntries = new ArrayList<>();
+                for (GetHW.DayEntry dayEntry : diaryEntries) {
+                    if (dayEntry.dayLabel.equals("11")) { // Update to access dayLabel property
+                        homeworkEntries.addAll(dayEntry.entries);
+                    }
+                }
+
+                // Remove empty rows
+                List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
+                for (GetHW.Entry entry : homeworkEntries) {
+                    if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
+                        nonEmptyEntries.add(entry);
+                    }
+                }
+
+                GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, nonEmptyEntries);
+                listView.setAdapter(adapter);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
 
 
 
