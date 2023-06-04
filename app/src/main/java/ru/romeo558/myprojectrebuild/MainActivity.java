@@ -83,47 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (fromLogin) {
             if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
-                RequestHW.checkServerResponse(new RequestHW.Callback() {
-                    @Override
-                    public void onSuccess(boolean hasResponse) {
-                        if (hasResponse) {
-                            RequestHW requestHW = new RequestHW();
-                            String jsonResponse = String.valueOf(requestHW.execute(login, password, currentDate));
-
-                            try {
-                                JSONObject jsonObject = new JSONObject(jsonResponse);
-                                GetHW getHW = new GetHW(jsonObject);
-                                List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
-
-                                List<GetHW.Entry> homeworkEntries = new ArrayList<>();
-                                for (GetHW.DayEntry dayEntry : diaryEntries) {
-                                    if (dayEntry.dayLabel.equals(String.valueOf(day))) {
-                                        homeworkEntries.addAll(dayEntry.entries);
-                                    }
-                                }
-
-                                List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-                                for (GetHW.Entry entry : homeworkEntries) {
-                                    if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
-                                        nonEmptyEntries.add(entry);
-                                    }
-                                }
-
-                                HomeworkAdapter adapter = new HomeworkAdapter(MainActivity.this, nonEmptyEntries);
-                                listView.setAdapter(adapter);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, "Сервер не отвечает на запросы. Без поддержки сервера приложение не может корректно работать. Повторите позже.", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    }
-                });
+                // TODO: Сделать что нибудь с этим
             } else {
                 Toast.makeText(MainActivity.this, "Программа заметила, что у неё нет ваших сохранённых логина и пароля. Пожалуйста, пройдите регистрацию снова, удалив приложение и заново его установив.", Toast.LENGTH_LONG).show();
                 finish();
