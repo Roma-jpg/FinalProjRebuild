@@ -1,8 +1,11 @@
 package ru.romeo558.myprojectrebuild;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -30,8 +33,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -55,14 +60,22 @@ public class LoginActivity extends AppCompatActivity {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        if (!isInternetAvailable()) {
+            System.out.println("The device is not connected to the Internet.");
+            // Show a dialog fragment with a semi-transparent background
+            NoInternetDialogFragment dialogFragment = new NoInternetDialogFragment();
+            dialogFragment.setCancelable(false);
+            dialogFragment.show(getSupportFragmentManager(), "no_internet_dialog");
+        } else {
+            System.out.println("Device has internet connection.");
+        }
+
         boolean hasStoredCredentials = sharedPreferences.getBoolean("hasStoredCredentials", false);
         if (hasStoredCredentials) {
             String savedEmail = sharedPreferences.getString("email", "");
             String savedPassword = sharedPreferences.getString("password", "");
 
-            emailInput.setText(savedEmail);
-            passwordInput.setText(savedPassword);
-            switchToMainActivity();
+            switchToMainActivity(savedEmail, savedPassword);
         }
 
         emailInput.setAlpha(0f);
@@ -139,11 +152,10 @@ public class LoginActivity extends AppCompatActivity {
                 requestBody.put("login", email);
                 requestBody.put("password", password);
 
-                LocalDate today = LocalDate.now();
-
-                // Форматируем дату в нужный формат (DD-MM-YYYY)
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-                String formattedDate = today.format(formatter);
+                Calendar calendar;
+                calendar = Calendar.getInstance();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                String formattedDate = formatter.format(calendar.getTime());
 
                 requestBody.put("date", formattedDate);
 
@@ -176,31 +188,14 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     // Unescape Unicode characters in the response
                     String unescapedResult = unescapeUnicode(result);
-                    System.out.println("\n=================\n"+unescapedResult+"\n==================\n");
+                    System.out.println("\n=================\n" + unescapedResult + "\n==================\n");
 
                     JSONObject jsonResponse = new JSONObject(unescapedResult);
                     String className = jsonResponse.getString("class_name");
                     String studentName = jsonResponse.getString("student_name");
                     System.out.printf("Class:%s, Student Name:%s", className, studentName);
-
-                    JSONArray diaryEntries = jsonResponse.getJSONArray("diary_entries");
-                    // Iterate over diary entries
-//                    for (int i = 0; i < diaryEntries.length(); i++) {
-//                        JSONArray entry = diaryEntries.getJSONArray(i);
-//                        String day = entry.getString(0);
-//                        JSONArray subjects = entry.getJSONArray(1);
-//                        // Iterate over subjects for each day
-//                        for (int j = 0; j < subjects.length(); j++) {
-//                            JSONArray subject = subjects.getJSONArray(j);
-//                            String subjectName = subject.getString(0);
-//                            String task = subject.getString(1);
-//                            String lessonNumber = subject.getString(2);
-//                            System.out.printf("SUBJECT:%s, TASK:%s, GRADE:%s", subjectName, task, lessonNumber);
-//                        }
-//                    }
-
                     // Login successful
-                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Логин прошёл успешно.", Toast.LENGTH_SHORT).show();
 
                     // Start the MainActivity
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -212,10 +207,10 @@ public class LoginActivity extends AppCompatActivity {
                     finish();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(LoginActivity.this, "Failed to parse server response", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Не получилось войти. Проверьте свой логин и пароль.", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(LoginActivity.this, "Failed to connect to the server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Не получилось подключиться к серверу. Повторите позже.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -237,15 +232,20 @@ public class LoginActivity extends AppCompatActivity {
         }
         return builder.toString();
     }
-    private void switchToMainActivity() {
-        boolean hasCred = sharedPreferences.getBoolean("hasStoredCredentials", false);
-        if (hasCred) {
-            // Start the MainActivity
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("hasCred", true);
-            intent.putExtra("fromLogin", true);
-            startActivity(intent);
-            finish();
-        }
+
+    private void switchToMainActivity(String login, String password) {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra("login", login);
+        intent.putExtra("password", password);
+        intent.putExtra("hasCred", true);
+        intent.putExtra("fromLogin", true);
+        startActivity(intent);
+        finish();
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 }

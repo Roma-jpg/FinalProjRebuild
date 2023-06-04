@@ -1,25 +1,26 @@
 package ru.romeo558.myprojectrebuild;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private Button shareButton;
     private String textToShare;
+    private ListView listView;
+    private Button dateButton;
 
 
+    @SuppressLint("SimpleDateFormat")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +71,67 @@ public class MainActivity extends AppCompatActivity {
         } else {
             System.out.println("Device has internet connection.");
         }
+        boolean fromLogin = getIntent().getBooleanExtra("fromLogin", false);
+        String login = getIntent().getStringExtra("login");
+        String password = getIntent().getStringExtra("password");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        String currentDate = dateFormat.format(new Date());
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // Увеличиваем на 1, так как в Calendar.MONTH январь имеет значение 0
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        if (fromLogin) {
+            if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
+                RequestHW.checkServerResponse(new RequestHW.Callback() {
+                    @Override
+                    public void onSuccess(boolean hasResponse) {
+                        if (hasResponse) {
+                            RequestHW requestHW = new RequestHW();
+                            String jsonResponse = String.valueOf(requestHW.execute(login, password, currentDate));
+
+                            try {
+                                JSONObject jsonObject = new JSONObject(jsonResponse);
+                                GetHW getHW = new GetHW(jsonObject);
+                                List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
+
+                                List<GetHW.Entry> homeworkEntries = new ArrayList<>();
+                                for (GetHW.DayEntry dayEntry : diaryEntries) {
+                                    if (dayEntry.dayLabel.equals(String.valueOf(day))) {
+                                        homeworkEntries.addAll(dayEntry.entries);
+                                    }
+                                }
+
+                                List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
+                                for (GetHW.Entry entry : homeworkEntries) {
+                                    if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
+                                        nonEmptyEntries.add(entry);
+                                    }
+                                }
+
+                                HomeworkAdapter adapter = new HomeworkAdapter(MainActivity.this, nonEmptyEntries);
+                                listView.setAdapter(adapter);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, "Сервер не отвечает на запросы. Без поддержки сервера приложение не может корректно работать. Повторите позже.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(MainActivity.this, "Программа заметила, что у неё нет ваших сохранённых логина и пароля. Пожалуйста, пройдите регистрацию снова, удалив приложение и заново его установив.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        } else {
+            Toast.makeText(MainActivity.this, "Что-то произошло. Но не то, чего все ожидали.", Toast.LENGTH_SHORT).show();
+        }
+
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -110,9 +175,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button dateButton = findViewById(R.id.date_button);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        String currentDate = dateFormat.format(new Date());
-        dateButton.setText(currentDate);
+        SimpleDateFormat dateFormatUno = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        String currentDateDos = dateFormatUno.format(new Date());
+        dateButton.setText(currentDateDos);
 
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,54 +222,62 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
-        String newName = getIntent().getStringExtra("student_name");
-        TextView student_name = findViewById(R.id.student_name);
-        student_name.setText(newName);
+//        String newName = getIntent().getStringExtra("student_name");
+//        TextView student_name = findViewById(R.id.student_name);
+//        student_name.setText(newName);
+//
+//        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//
+//        String jsonResponse = getIntent().getStringExtra("json_response");
+//        String hasStored = getIntent().getStringExtra("hasCred");
 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        String jsonResponse = getIntent().getStringExtra("json_response");
-        String hasStored = getIntent().getStringExtra("hasCred");
+//        boolean run = true;
+//        if (jsonResponse == null && Objects.equals(hasStored, "true")) {
+//            run = false;
+//
+//            SharedPreferences sharedPreferences = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+//            String login = sharedPreferences.getString("login", "");
+//            String password = sharedPreferences.getString("password", "");
+//
+//            // Создаем объект SimpleDateFormat для форматирования даты
+//            dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+//
+//            // Получаем сегодняшнюю дату
+//            Calendar calendar = Calendar.getInstance();
+//            String today = dateFormat.format(calendar.getTime());
+//
+//            RequestHW request = new RequestHW();
+//            request.execute(login, password, today);
+//        }
+//        if (run){
+//
+//            try {
+//                JSONObject jsonObject = new JSONObject(jsonResponse);
+//                GetHW getHW = new GetHW(jsonObject);
+//                List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
+//
+//                List<GetHW.Entry> homeworkEntries = new ArrayList<>();
+//                for (GetHW.DayEntry dayEntry : diaryEntries) {
+//                    if (dayEntry.dayLabel.equals("11")) { // Update to access dayLabel property
+//                        homeworkEntries.addAll(dayEntry.entries);
+//                    }
+//                }
+//
+//                // Remove empty rows
+//                List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
+//                for (GetHW.Entry entry : homeworkEntries) {
+//                    if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
+//                        nonEmptyEntries.add(entry);
+//                    }
+//                }
+//
+//                GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, nonEmptyEntries);
+//                listView.setAdapter(adapter);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
         ListView listView = findViewById(R.id.myListView);
-        boolean run = true;
-        if (jsonResponse == null && Objects.equals(hasStored, "true")){
-            RequestHW request = new RequestHW();
-            request.execute("example@example.com", "password123", "13-05-2023");
-        }
-        if (run){
-
-            try {
-                JSONObject jsonObject = new JSONObject(jsonResponse);
-                GetHW getHW = new GetHW(jsonObject);
-                List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
-
-                List<GetHW.Entry> homeworkEntries = new ArrayList<>();
-                for (GetHW.DayEntry dayEntry : diaryEntries) {
-                    if (dayEntry.dayLabel.equals("11")) { // Update to access dayLabel property
-                        homeworkEntries.addAll(dayEntry.entries);
-                    }
-                }
-
-                // Remove empty rows
-                List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-                for (GetHW.Entry entry : homeworkEntries) {
-                    if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
-                        nonEmptyEntries.add(entry);
-                    }
-                }
-
-                GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, nonEmptyEntries);
-                listView.setAdapter(adapter);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-
-
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -225,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         System.out.println("OnOptionsItemSelected() method is called");
@@ -276,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
+
     private void showPopupMenu(View anchorView) {
         PopupMenu popupMenu = new PopupMenu(this, anchorView);
         popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
@@ -296,6 +371,28 @@ public class MainActivity extends AppCompatActivity {
         });
 
         popupMenu.show();
+    }
+    private class HomeworkAdapter extends ArrayAdapter<GetHW.Entry> {
+
+        private LayoutInflater inflater;
+
+        public HomeworkAdapter(Context context, List<GetHW.Entry> entries) {
+            super(context, 0, entries);
+            inflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.row_my_list_item, parent, false);
+            }
+
+            GetHW.Entry entry = getItem(position);
+
+            // Set the data to the views in your custom layout
+
+            return convertView;
+        }
     }
 
 }
