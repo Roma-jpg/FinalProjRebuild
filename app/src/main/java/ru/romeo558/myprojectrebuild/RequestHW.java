@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -54,5 +55,52 @@ public class RequestHW extends AsyncTask<String, Void, String> {
         }
 
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        // Обработайте результат здесь, например, обновите пользовательский интерфейс с помощью полученных данных
+        if (result != null) {
+            // Действия с результатом
+        } else {
+            // Обработка ошибки
+        }
+    }
+
+    public static void checkServerResponse(final Callback callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL serverUrl = new URL("http://188.120.238.71/");
+                    HttpURLConnection connection = (HttpURLConnection) serverUrl.openConnection();
+                    connection.setRequestMethod("GET");
+
+                    int responseCode = connection.getResponseCode();
+
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                        String line;
+                        StringBuilder response = new StringBuilder();
+
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+
+                        reader.close();
+
+                        callback.onSuccess(response.length() > 0);
+                    } else {
+                        callback.onSuccess(false);
+                    }
+                } catch (IOException e) {
+                    callback.onSuccess(false);
+                }
+            }
+        }).start();
+    }
+
+    public interface Callback {
+        void onSuccess(boolean hasResponse);
     }
 }
