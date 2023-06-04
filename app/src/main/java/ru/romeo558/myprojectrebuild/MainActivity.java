@@ -68,6 +68,27 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Device has internet connection.");
         }
 
+        boolean fromLogin = getIntent().getBooleanExtra("fromLogin", false);
+        String login = getIntent().getStringExtra("login");
+        String password = getIntent().getStringExtra("password");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        String currentDate = dateFormat.format(new Date());
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // Увеличиваем на 1, так как в Calendar.MONTH январь имеет значение 0
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        if (fromLogin) {
+            if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
+
+            } else {
+                Toast.makeText(MainActivity.this, "Программа заметила, что у неё нет ваших сохранённых логина и пароля. Пожалуйста, пройдите регистрацию снова, удалив приложение и заново его установив.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        } else {
+            Toast.makeText(MainActivity.this, "Что-то произошло. Но не то, чего все ожидали.", Toast.LENGTH_SHORT).show();
+        }
+
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
 
@@ -110,9 +131,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button dateButton = findViewById(R.id.date_button);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-        String currentDate = dateFormat.format(new Date());
-        dateButton.setText(currentDate);
+        SimpleDateFormat dateFormatUno = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        String currentDateDos = dateFormatUno.format(new Date());
+        dateButton.setText(currentDateDos);
 
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
