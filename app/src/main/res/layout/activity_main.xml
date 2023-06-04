@@ -6,87 +6,93 @@
     android:layout_height="match_parent">
 
     <!-- Content View -->
-    <LinearLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <!-- Top Header -->
-        <RelativeLayout
-            android:id="@+id/topHeader"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/parchment_light"
-            android:padding="8dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <!-- Date Button -->
-            <Button
-                android:id="@+id/date_button"
-                android:layout_width="wrap_content"
+            <!-- Top Header -->
+            <RelativeLayout
+                android:id="@+id/topHeader"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="4dp"
-                android:text="@string/date_placeholder"
-                android:background="@drawable/custom_button_solid"
-                android:textColor="@android:color/black" />
+                android:background="@color/parchment_light"
+                android:padding="8dp">
 
-            <!-- Share Button -->
-            <Button
-                android:id="@+id/share_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="@string/share_placeholder"
-                android:background="@drawable/custom_button_solid"
-                android:textColor="@android:color/black" />
+                <!-- Date Button -->
+                <Button
+                    android:id="@+id/date_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/date_placeholder"
+                    android:background="@drawable/custom_button_solid"
+                    android:textColor="@android:color/black" />
 
-            <!-- Text View -->
-            <TextView
-                android:id="@+id/student_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_toStartOf="@id/share_button"
-                android:layout_toEndOf="@+id/date_button"
-                android:fontFamily="sans-serif-light"
-                android:text="@string/student_name"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:gravity="center"
-                />
-        </RelativeLayout>
+                <!-- Share Button -->
+                <Button
+                    android:id="@+id/share_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="@string/share_placeholder"
+                    android:background="@drawable/custom_button_solid"
+                    android:textColor="@android:color/black" />
 
-        <!-- List View -->
-        <ListView
-            android:id="@+id/myListView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="@color/parchment_light"
-            />
+                <!-- Text View -->
+                <TextView
+                    android:id="@+id/student_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_toStartOf="@id/share_button"
+                    android:layout_toEndOf="@+id/date_button"
+                    android:fontFamily="sans-serif-light"
+                    android:text="@string/student_name"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    />
+            </RelativeLayout>
 
-        <!-- Bottom Header -->
-        <RelativeLayout
-            android:id="@+id/bottomHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/parchment_light"
-            android:padding="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/copyright"
+            <!-- List View -->
+            <ListView
+                android:id="@+id/myListView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:background="@color/parchment_light"
                 />
 
-        </RelativeLayout>
-    </LinearLayout>
+            <!-- Bottom Header -->
+            <RelativeLayout
+                android:id="@+id/bottomHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/parchment_light"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/copyright"
+                    />
+
+            </RelativeLayout>
+        </LinearLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- NavigationView -->
     <com.google.android.material.navigation.NavigationView

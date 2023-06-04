@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -83,7 +84,31 @@ public class MainActivity extends AppCompatActivity {
 
         if (fromLogin) {
             if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
-                // TODO: Сделать что нибудь с этим
+                RequestHW.sendRequest(login, password, currentDate, new RequestHW.Callback() {
+                    @Override
+                    public void onSuccess(String response) {
+                        String unescapedResult = unescapeUnicode(response);
+                        System.out.println(unescapedResult);
+                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            String studentName = jsonObject.getString("student_name");
+                            String[] nameParts = studentName.split(" ");
+                            String middleName = nameParts[1];
+                            TextView student = findViewById(R.id.student_name);
+                            student.setText(middleName.toUpperCase());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        Toast.makeText(MainActivity.this, "Ошибка", Toast.LENGTH_LONG).show();
+                    }
+                });
+
             } else {
                 Toast.makeText(MainActivity.this, "Программа заметила, что у неё нет ваших сохранённых логина и пароля. Пожалуйста, пройдите регистрацию снова, удалив приложение и заново его установив.", Toast.LENGTH_LONG).show();
                 finish();
@@ -91,17 +116,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(MainActivity.this, "Что-то произошло. Но не то, чего все ожидали.", Toast.LENGTH_SHORT).show();
         }
-
-
-        boolean fromLogin = getIntent().getBooleanExtra("fromLogin", false);
-        String login = getIntent().getStringExtra("login");
-        String password = getIntent().getStringExtra("password");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
-        String currentDate = dateFormat.format(new Date());
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1; // Увеличиваем на 1, так как в Calendar.MONTH январь имеет значение 0
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         if (fromLogin) {
             if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
@@ -353,27 +367,22 @@ public class MainActivity extends AppCompatActivity {
 
         popupMenu.show();
     }
-    private class HomeworkAdapter extends ArrayAdapter<GetHW.Entry> {
 
-        private LayoutInflater inflater;
-
-        public HomeworkAdapter(Context context, List<GetHW.Entry> entries) {
-            super(context, 0, entries);
-            inflater = LayoutInflater.from(context);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.row_my_list_item, parent, false);
+    private static String unescapeUnicode(String unicodeEscapedString) {
+        StringBuilder builder = new StringBuilder();
+        int length = unicodeEscapedString.length();
+        for (int i = 0; i < length; i++) {
+            char currentChar = unicodeEscapedString.charAt(i);
+            if (currentChar == '\\' && i + 1 < length && unicodeEscapedString.charAt(i + 1) == 'u') {
+                // Found a Unicode Escape sequence
+                String unicodeHex = unicodeEscapedString.substring(i + 2, i + 6);
+                int codePoint = Integer.parseInt(unicodeHex, 16);
+                builder.append((char) codePoint);
+                i += 5; // Skip the next 5 characters
+            } else {
+                builder.append(currentChar);
             }
-
-            GetHW.Entry entry = getItem(position);
-
-            // Set the data to the views in your custom layout
-
-            return convertView;
         }
+        return builder.toString();
     }
-
 }

@@ -77,6 +77,10 @@ public class LoginActivity extends AppCompatActivity {
 
             switchToMainActivity(savedEmail, savedPassword);
         }
+        boolean everEntered = sharedPreferences.getBoolean("everEntered", false);
+        if (!everEntered){
+            switchToWelcomePage();
+        }
 
         emailInput.setAlpha(0f);
         passwordInput.setAlpha(0f);
@@ -129,6 +133,12 @@ public class LoginActivity extends AppCompatActivity {
                 new UserVerificationTask().execute(email, password);
             }
         });
+    }
+
+    private void switchToWelcomePage() {
+        Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 

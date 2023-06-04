@@ -11,60 +11,60 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class RequestHW extends AsyncTask<String, Void, String> {
+public class RequestHW {
 
-    @Override
-    protected String doInBackground(String... params) {
-        String email = params[0];
-        String password = params[1];
-        String date = params[2];
+    public static void sendRequest(final String email, final String password, final String date, final Callback callback) {
+        new AsyncTask<Void, Void, String>() {
 
-        String apiUrl = "http://188.120.238.71/";
+            @Override
+            protected String doInBackground(Void... voids) {
+                String apiUrl = "http://188.120.238.71/";
 
-        try {
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setDoOutput(true);
+                try {
+                    URL url = new URL(apiUrl);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setDoOutput(true);
 
-            // Create the JSON request body
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("login", email);
-            requestBody.put("password", password);
-            requestBody.put("date", date);
+                    // Create the JSON request body
+                    JSONObject requestBody = new JSONObject();
+                    requestBody.put("login", email);
+                    requestBody.put("password", password);
+                    requestBody.put("date", date);
 
-            // Send the request body
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(requestBody.toString().getBytes());
-            outputStream.flush();
-            outputStream.close();
+                    // Send the request body
+                    OutputStream outputStream = connection.getOutputStream();
+                    outputStream.write(requestBody.toString().getBytes());
+                    outputStream.flush();
+                    outputStream.close();
 
-            // Read the response
-            StringBuilder response = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
+                    // Read the response
+                    StringBuilder response = new StringBuilder();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+
+                    return response.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return null;
             }
-            reader.close();
 
-            return response.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-        // Обработайте результат здесь, например, обновите пользовательский интерфейс с помощью полученных данных
-        if (result != null) {
-            // Действия с результатом
-        } else {
-            // Обработка ошибки
-        }
+            @Override
+            protected void onPostExecute(String result) {
+                if (result != null) {
+                    callback.onSuccess(result);
+                } else {
+                    callback.onError();
+                }
+            }
+        }.execute();
     }
 
     public static void checkServerResponse(final Callback callback) {
@@ -89,18 +89,19 @@ public class RequestHW extends AsyncTask<String, Void, String> {
 
                         reader.close();
 
-                        callback.onSuccess(response.length() > 0);
+                        callback.onSuccess(response.toString());
                     } else {
-                        callback.onSuccess(false);
+                        callback.onError();
                     }
                 } catch (IOException e) {
-                    callback.onSuccess(false);
+                    callback.onError();
                 }
             }
         }).start();
     }
 
     public interface Callback {
-        void onSuccess(boolean hasResponse);
+        void onSuccess(String response);
+        void onError();
     }
 }

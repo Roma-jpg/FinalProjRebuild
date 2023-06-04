@@ -21,7 +21,7 @@ public class ThankYouActivity extends AppCompatActivity {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent welcomeIntent = new Intent(ThankYouActivity.this, MainActivity.class);
+                Intent welcomeIntent = new Intent(ThankYouActivity.this, LoginActivity.class);
                 setActivityStartAnimation(welcomeIntent);
                 startActivity(welcomeIntent);
                 finish();
