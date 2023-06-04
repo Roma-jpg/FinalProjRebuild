@@ -32,6 +32,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -173,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat dateFormatUno = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String currentDateDos = dateFormatUno.format(new Date());
         dateButton.setText(currentDateDos);
+        Calendar selectedDate = Calendar.getInstance();
 
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,11 +184,62 @@ public class MainActivity extends AppCompatActivity {
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                System.out.println("DatePicker is active.");
-                                String dateString = String.format(Locale.getDefault(), "%02d.%02d.%04d",
-                                        dayOfMonth, month + 1, year);
+                                // Сохранение выбранной даты в переменной
+                                selectedDate.set(Calendar.YEAR, year);
+                                selectedDate.set(Calendar.MONTH, month);
+                                selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                                String dateString = dateFormat.format(selectedDate.getTime());
+                                Toast.makeText(MainActivity.this, String.valueOf(selectedDate), Toast.LENGTH_LONG).show();
+
                                 dateButton.setText(dateString);
-                                System.out.printf("%d.%d.%d", dayOfMonth, month + 1, year);
+
+                                RequestHW.sendRequest(login, password, String.valueOf(selectedDate), new RequestHW.Callback() {
+                                    @Override
+                                    public void onSuccess(String response) {
+                                        String unescapedResult = unescapeUnicode(response);
+                                        System.out.println(unescapedResult);
+                                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(response);
+                                            String studentName = jsonObject.getString("student_name");
+                                            String[] nameParts = studentName.split(" ");
+                                            String middleName = nameParts[1];
+                                            TextView student = findViewById(R.id.student_name);
+                                            student.setText(middleName.toUpperCase());
+                                            GetHW getHW = new GetHW(jsonObject);
+                                            List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
+
+                                            List<GetHW.Entry> homeworkEntries = new ArrayList<>();
+                                            for (GetHW.DayEntry dayEntry : diaryEntries) {
+                                                if (String.valueOf(day).equals(dayEntry.dayLabel)) { // Update to access dayLabel property
+                                                    homeworkEntries.addAll(dayEntry.entries);
+                                                }
+                                            }
+
+                                            // Remove empty rows
+                                            List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
+                                            for (GetHW.Entry entry : homeworkEntries) {
+                                                if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
+                                                    nonEmptyEntries.add(entry);
+                                                }
+                                            }
+
+                                            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(MainActivity.this, nonEmptyEntries);
+                                            listView.setAdapter(adapter);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        Toast.makeText(MainActivity.this, "Ошибка", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
                             }
                         },
                         Calendar.getInstance().get(Calendar.YEAR),
@@ -217,6 +270,65 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Toast.makeText(MainActivity.this, "Refresh is working!", Toast.LENGTH_SHORT).show();
+                System.out.println(selectedDate);
+
+
+                RequestHW.sendRequest(login, password, String.valueOf(selectedDate), new RequestHW.Callback() {
+                    @Override
+                    public void onSuccess(String response) {
+                        String unescapedResult = unescapeUnicode(response);
+                        System.out.println(unescapedResult);
+                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            String studentName = jsonObject.getString("student_name");
+                            String[] nameParts = studentName.split(" ");
+                            String middleName = nameParts[1];
+                            TextView student = findViewById(R.id.student_name);
+                            student.setText(middleName.toUpperCase());
+                            GetHW getHW = new GetHW(jsonObject);
+                            List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
+
+                            List<GetHW.Entry> homeworkEntries = new ArrayList<>();
+                            for (GetHW.DayEntry dayEntry : diaryEntries) {
+                                if (String.valueOf(day).equals(dayEntry.dayLabel)) { // Update to access dayLabel property
+                                    homeworkEntries.addAll(dayEntry.entries);
+                                }
+                            }
+
+                            // Remove empty rows
+                            List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
+                            for (GetHW.Entry entry : homeworkEntries) {
+                                if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
+                                    nonEmptyEntries.add(entry);
+                                }
+                            }
+
+                            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(MainActivity.this, nonEmptyEntries);
+                            listView.setAdapter(adapter);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        Toast.makeText(MainActivity.this, "Ошибка", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+
 //        String newName = getIntent().getStringExtra("student_name");
 //        TextView student_name = findViewById(R.id.student_name);
 //        student_name.setText(newName);
