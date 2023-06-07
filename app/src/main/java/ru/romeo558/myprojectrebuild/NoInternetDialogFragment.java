@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,33 +20,30 @@ public class NoInternetDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Создание представления фрагмента из макета
         View view = inflater.inflate(R.layout.dialog_no_internet, container, false);
+
+        // Настройка обработчика нажатия на кнопку "OK"
         Button okButton = view.findViewById(R.id.ok_button);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isInternetAvailable()) {
-                    // Internet is available, continue with the application
-                    dismiss();
-                } else {
-                    // Close the application and remove it from the list of recent apps
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        getActivity().finishAndRemoveTask();
-                    } else {
-                        getActivity().finish();
-                    }
-                }
+        okButton.setOnClickListener(v -> {
+            if (isInternetAvailable()) {
+                // Интернет доступен, продолжаем работу приложения
+                dismiss();
+            } else {
+                // Закрытие приложения и удаление его из списка последних приложений
+                requireActivity().finishAndRemoveTask();
             }
         });
 
-        // Set the background of the root view to be semi-transparent
+        // Установка полупрозрачного фона для корневого представления
         Objects.requireNonNull(getDialog()).getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getDialog().getWindow().setDimAmount(0.45f);
+
         return view;
     }
 
     private boolean isInternetAvailable() {
+        // Проверка доступности интернета
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager != null) {

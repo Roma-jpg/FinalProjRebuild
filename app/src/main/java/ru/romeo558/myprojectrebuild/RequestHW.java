@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -16,6 +15,7 @@ import java.net.URL;
 
 public class RequestHW {
 
+    // Отправка асинхронного запроса
     public static void sendRequest(final String email, final String password, final String date, final Callback callback) {
         new AsyncTask<Void, Void, String>() {
 
@@ -30,19 +30,19 @@ public class RequestHW {
                     connection.setRequestProperty("Content-Type", "application/json");
                     connection.setDoOutput(true);
 
-                    // Create the JSON request body
+                    // Создание тела JSON-запроса
                     JSONObject requestBody = new JSONObject();
                     requestBody.put("login", email);
                     requestBody.put("password", password);
                     requestBody.put("date", date);
 
-                    // Send the request body
+                    // Отправка тела запроса
                     OutputStream outputStream = connection.getOutputStream();
                     outputStream.write(requestBody.toString().getBytes());
                     outputStream.flush();
                     outputStream.close();
 
-                    // Read the response
+                    // Чтение ответа
                     StringBuilder response = new StringBuilder();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     String line;
@@ -62,14 +62,11 @@ public class RequestHW {
             @Override
             protected void onPostExecute(String result) {
                 if (result != null) {
-                    runOnUIThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                callback.onSuccess(result);
-                            } catch (JSONException e) {
-                                callback.onError();
-                            }
+                    runOnUIThread(() -> {
+                        try {
+                            callback.onSuccess(result);
+                        } catch (JSONException e) {
+                            callback.onError();
                         }
                     });
                 } else {
@@ -79,53 +76,13 @@ public class RequestHW {
         }.execute();
     }
 
-    public static void checkServerResponse(final Callback callback) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL serverUrl = new URL("http://188.120.238.71/");
-                    HttpURLConnection connection = (HttpURLConnection) serverUrl.openConnection();
-                    connection.setRequestMethod("GET");
-
-                    int responseCode = connection.getResponseCode();
-
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                        String line;
-                        StringBuilder response = new StringBuilder();
-
-                        while ((line = reader.readLine()) != null) {
-                            response.append(line);
-                        }
-
-                        reader.close();
-
-                        runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    callback.onSuccess(response.toString());
-                                } catch (JSONException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        });
-                    } else {
-                        callback.onError();
-                    }
-                } catch (IOException e) {
-                    callback.onError();
-                }
-            }
-        }).start();
-    }
-
+    // Запуск выполнения кода на основном потоке пользовательского интерфейса
     private static void runOnUIThread(Runnable runnable) {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(runnable);
     }
 
+    // Интерфейс обратного вызова для обработки успешного выполнения запроса или ошибки
     public interface Callback {
         void onSuccess(String response) throws JSONException;
 

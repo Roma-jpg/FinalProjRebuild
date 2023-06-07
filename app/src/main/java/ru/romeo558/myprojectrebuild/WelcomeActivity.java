@@ -11,7 +11,6 @@ import java.time.LocalDate;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-//    private ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,14 +28,15 @@ public class WelcomeActivity extends AppCompatActivity {
             currentMonth = currentDate.getMonthValue();
         }
 
+        String pepTalkMessage; // Сделал интересную штуку - если пользователь скачал приложение в сентябре или октябре, то текст меняется.
         if (currentMonth == 9 || currentMonth == 10) {
-            String pepTalkMessage = "Вот и начался учебный год. Я уверен, что это приложение поможет вам в вашем пути и начинаниях и всё также легко и быстро будет показывать вам ваше домашнее задание.";
-            pepTalkTextView.setText(pepTalkMessage);
+            pepTalkMessage = "Вот и начался учебный год. Я уверен, что это приложение поможет вам в вашем пути и начинаниях и всё также легко и быстро будет показывать вам ваше домашнее задание.";
         } else {
-            String pepTalkMessage = "Приветствуем вас в моём приложении - RomeoDiary. \nЭто приложение легко и быстро покажет вам какое домашнее задание вам задали на сегодня и какие оценки вы получили.";
-            pepTalkTextView.setText(pepTalkMessage);
+            pepTalkMessage = "Приветствуем вас в моём приложении - RomeoDiary. \nЭто приложение легко и быстро покажет вам какое домашнее задание вам задали на сегодня и какие оценки вы получили.";
         }
+        pepTalkTextView.setText(pepTalkMessage);
 
+        // Слушатель кнопки startButton
         Button startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
             Intent surveyIntent = new Intent(WelcomeActivity.this, SurveyActivity.class);
@@ -46,6 +46,7 @@ public class WelcomeActivity extends AppCompatActivity {
         });
     }
 
+    // Задаёт анимацию
     private void setActivityStartAnimation(Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);

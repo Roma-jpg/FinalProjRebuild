@@ -17,14 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetHW {
-    private String className;
     List<DayEntry> diaryEntries;
-    private String studentName;
 
     public GetHW(JSONObject jsonResponse) throws JSONException {
-        className = jsonResponse.getString("class_name");
+        // Создание списка записей из JSON-ответа
         diaryEntries = DayEntry.fromJson(jsonResponse.getJSONArray("diary_entries"));
-        studentName = jsonResponse.getString("student_name");
     }
 
     public static class DayEntry {
@@ -37,6 +34,7 @@ public class GetHW {
         }
 
         public static List<DayEntry> fromJson(JSONArray jsonArray) throws JSONException {
+            // Создание списка объектов DayEntry из JSON-массива
             List<DayEntry> dayEntries = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject dayEntryJson = jsonArray.getJSONObject(i);
@@ -50,9 +48,9 @@ public class GetHW {
     }
 
     public static class Entry {
-        private String mark;
-        private String subject;
-        private String task;
+        private final String mark;
+        private final String subject;
+        private final String task;
 
         public Entry(String mark, String subject, String task) {
             this.mark = mark;
@@ -73,6 +71,7 @@ public class GetHW {
         }
 
         public static List<Entry> fromJson(JSONArray jsonArray) throws JSONException {
+            // Создание списка объектов Entry из JSON-массива
             List<Entry> entries = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject entryJson = jsonArray.getJSONObject(i);
@@ -87,8 +86,8 @@ public class GetHW {
     }
 
     public static class HomeworkAdapter extends ArrayAdapter<GetHW.Entry> {
-        private Context context;
-        private List<GetHW.Entry> entries;
+        private final Context context;
+        private final List<GetHW.Entry> entries;
 
         public HomeworkAdapter(Context context, List<GetHW.Entry> entries) {
             super(context, 0, entries);
@@ -101,11 +100,13 @@ public class GetHW {
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View listItemView = convertView;
             if (listItemView == null) {
+                // Загрузка макета для элемента списка, если его нет
                 listItemView = LayoutInflater.from(context).inflate(R.layout.row_my_list_item, parent, false);
             }
 
             GetHW.Entry entry = entries.get(position);
 
+            // Настройка элементов макета с данными из объекта Entry
             TextView headerTextView = listItemView.findViewById(R.id.headerTextView);
             TextView descriptionTextView = listItemView.findViewById(R.id.descriptionTextView);
             TextView scoreTextView = listItemView.findViewById(R.id.scoreTextView);
