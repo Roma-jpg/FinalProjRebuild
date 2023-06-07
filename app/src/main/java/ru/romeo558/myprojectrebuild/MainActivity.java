@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private Button shareButton;
-    private String textToShare;
     private ListView listView;
     private Button dateButton;
 
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         boolean fromLogin = getIntent().getBooleanExtra("fromLogin", false);
         String login = getIntent().getStringExtra("login");
         String password = getIntent().getStringExtra("password");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         SimpleDateFormat dateFormatServer = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         String currentDate = dateFormat.format(new Date());
         String currentDateServer = dateFormatServer.format(new Date());
@@ -202,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Button dateButton = findViewById(R.id.date_button);
-        SimpleDateFormat dateFormatUno = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormatUno = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         String currentDateDos = dateFormatUno.format(new Date());
         dateButton.setText(currentDateDos);
         Calendar selectedDate = Calendar.getInstance();
@@ -271,19 +270,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        textToShare = "Example text to send via messengers and others.";
+        String textToShare = "Example text to send via messengers and others.";
         shareButton = findViewById(R.id.share_button);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String selectedDate = sharedPreferences2.getString("selectedDate", "");
+                RequestHW.sendRequest(savedEmail, savedPassword, selectedDate, new RequestHW.Callback() {
+                    @Override
+                    public void onSuccess(String response) throws JSONException {
+                        String unescapedResult = unescapeUnicode(response);
+                        String textToShare = shareHomework(unescapedResult, String.valueOf(day));
+                        Toast.makeText(MainActivity.this, textToShare, Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onError() {
+                        Toast.makeText(MainActivity.this, "Ошибка", Toast.LENGTH_LONG).show();
+                    }
+                });
+
 //                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
 //                sharingIntent.setType("text/plain");
 //                sharingIntent.putExtra(Intent.EXTRA_TEXT, textToShare);
 //                startActivity(Intent.createChooser(sharingIntent, "Отправить ДЗ через:"));
-                Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                setActivityStartAnimation(loginIntent);
-                startActivity(loginIntent);
-                finish();
+//                Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+//                setActivityStartAnimation(loginIntent);
+//                startActivity(loginIntent);
+//                finish();
             }
         });
 
@@ -489,6 +503,38 @@ public class MainActivity extends AppCompatActivity {
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         listView.startAnimation(animation);
 
+    }
+    public String shareHomework(String json, String day) throws JSONException {
+        StringBuilder result = new StringBuilder();
+
+        JSONObject response = new JSONObject(json);
+        JSONArray diaryEntries = response.getJSONArray("diary_entries");
+
+        for (int i = 0; i < diaryEntries.length(); i++) {
+            JSONObject entry = diaryEntries.getJSONObject(i);
+            String dayLabel = entry.getString("day_label");
+
+            if (dayLabel.equals(day)) {
+                JSONArray entries = entry.getJSONArray("entries");
+
+                result.append("Домашнее задание на ").append(dayLabel.split(" ")[1]).append(" число:\n");
+
+                for (int j = 0; j < entries.length(); j++) {
+                    JSONObject task = entries.getJSONObject(j);
+                    String subject = task.getString("subject");
+                    String taskDescription = task.getString("task");
+
+                    if (!subject.isEmpty()) {
+                        result.append(subject).append(": ").append(taskDescription).append("\n");
+                    }
+                }
+
+                result.append("\n");
+                break;
+            }
+        }
+        Toast.makeText(this, result.toString(), Toast.LENGTH_LONG).show();
+        return result.toString();
     }
 
 }
