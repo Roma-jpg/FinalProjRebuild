@@ -1,7 +1,10 @@
 package ru.romeo558.myprojectrebuild;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -59,7 +62,16 @@ public class RequestHW {
             @Override
             protected void onPostExecute(String result) {
                 if (result != null) {
-                    callback.onSuccess(result);
+                    runOnUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                callback.onSuccess(result);
+                            } catch (JSONException e) {
+                                callback.onError();
+                            }
+                        }
+                    });
                 } else {
                     callback.onError();
                 }
@@ -89,7 +101,16 @@ public class RequestHW {
 
                         reader.close();
 
-                        callback.onSuccess(response.toString());
+                        runOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    callback.onSuccess(response.toString());
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
                     } else {
                         callback.onError();
                     }
@@ -100,8 +121,14 @@ public class RequestHW {
         }).start();
     }
 
+    private static void runOnUIThread(Runnable runnable) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(runnable);
+    }
+
     public interface Callback {
-        void onSuccess(String response);
+        void onSuccess(String response) throws JSONException;
+
         void onError();
     }
 }

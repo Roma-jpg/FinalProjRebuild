@@ -4,19 +4,20 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
@@ -36,6 +37,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -76,28 +78,36 @@ public class MainActivity extends AppCompatActivity {
         boolean fromLogin = getIntent().getBooleanExtra("fromLogin", false);
         String login = getIntent().getStringExtra("login");
         String password = getIntent().getStringExtra("password");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormatServer = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
         String currentDate = dateFormat.format(new Date());
+        String currentDateServer = dateFormatServer.format(new Date());
         Calendar calendar = Calendar.getInstance();
+        listView = findViewById(R.id.myListView);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1; // Увеличиваем на 1, так как в Calendar.MONTH январь имеет значение 0
         int day = calendar.get(Calendar.DAY_OF_MONTH);
+        final String[] dateString1 = new String[1];
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences2 = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences2.edit();
+        editor.putString("selectedDate", currentDateServer);
+        String savedEmail = sharedPreferences.getString("email", "");
+        String savedPassword = sharedPreferences.getString("password", "");
 
         if (fromLogin) {
             if (!TextUtils.isEmpty(login) && !TextUtils.isEmpty(password)) {
-                RequestHW.sendRequest(login, password, currentDate, new RequestHW.Callback() {
+                String selectedDate = sharedPreferences2.getString("selectedDate", "");
+                RequestHW.sendRequest(savedEmail, savedPassword, selectedDate, new RequestHW.Callback() {
                     @Override
                     public void onSuccess(String response) {
                         String unescapedResult = unescapeUnicode(response);
                         System.out.println(unescapedResult);
-                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                        System.out.println(selectedDate.split("-")[0]);
+//                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            String studentName = jsonObject.getString("student_name");
-                            String[] nameParts = studentName.split(" ");
-                            String middleName = nameParts[1];
-                            TextView student = findViewById(R.id.student_name);
-                            student.setText(middleName.toUpperCase());
+                            populateListViewWithJsonResponse(jsonObject);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -115,7 +125,27 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         } else {
-            Toast.makeText(MainActivity.this, "Что-то произошло. Но не то, чего все ожидали.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "MainActivity вызвалось не через LoginActivity. Попробуем загрузить ДЗ в любом случае.  ", Toast.LENGTH_SHORT).show();
+            String selectedDate = sharedPreferences2.getString("selectedDate", "");
+            RequestHW.sendRequest(savedEmail, savedPassword, selectedDate, new RequestHW.Callback() {
+                @Override
+                public void onSuccess(String response) {
+                    String unescapedResult = unescapeUnicode(response);
+//                    Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        populateListViewWithJsonResponse(jsonObject);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onError() {
+                    Toast.makeText(MainActivity.this, "Ошибка", Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
         if (fromLogin) {
@@ -126,7 +156,8 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         } else {
-            Toast.makeText(MainActivity.this, "Что-то произошло. Но не то, чего все ожидали.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MainActivity.this, "Что-то произошло. Но не то, чего все ожидали.", Toast.LENGTH_SHORT).show();
+            System.out.println("-");
         }
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -191,43 +222,28 @@ public class MainActivity extends AppCompatActivity {
 
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
                                 String dateString = dateFormat.format(selectedDate.getTime());
-                                Toast.makeText(MainActivity.this, String.valueOf(selectedDate), Toast.LENGTH_LONG).show();
+
+
+                                SharedPreferences.Editor editor = sharedPreferences2.edit();
+                                editor.putString("selectedDate", dateString);
+                                editor.apply();
+
+//                                Toast.makeText(MainActivity.this, String.valueOf(selectedDate), Toast.LENGTH_LONG).show();
+                                dateString1[0] = dateString;
 
                                 dateButton.setText(dateString);
 
-                                RequestHW.sendRequest(login, password, String.valueOf(selectedDate), new RequestHW.Callback() {
+                                String selectedDate = sharedPreferences2.getString("selectedDate", "");
+                                RequestHW.sendRequest(savedEmail, savedPassword, dateString, new RequestHW.Callback() {
                                     @Override
                                     public void onSuccess(String response) {
                                         String unescapedResult = unescapeUnicode(response);
                                         System.out.println(unescapedResult);
-                                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                                        System.out.println(selectedDate.split("-")[0]);
+//                                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
                                         try {
                                             JSONObject jsonObject = new JSONObject(response);
-                                            String studentName = jsonObject.getString("student_name");
-                                            String[] nameParts = studentName.split(" ");
-                                            String middleName = nameParts[1];
-                                            TextView student = findViewById(R.id.student_name);
-                                            student.setText(middleName.toUpperCase());
-                                            GetHW getHW = new GetHW(jsonObject);
-                                            List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
-
-                                            List<GetHW.Entry> homeworkEntries = new ArrayList<>();
-                                            for (GetHW.DayEntry dayEntry : diaryEntries) {
-                                                if (String.valueOf(day).equals(dayEntry.dayLabel)) { // Update to access dayLabel property
-                                                    homeworkEntries.addAll(dayEntry.entries);
-                                                }
-                                            }
-
-                                            // Remove empty rows
-                                            List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-                                            for (GetHW.Entry entry : homeworkEntries) {
-                                                if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
-                                                    nonEmptyEntries.add(entry);
-                                                }
-                                            }
-
-                                            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(MainActivity.this, nonEmptyEntries);
-                                            listView.setAdapter(adapter);
+                                            populateListViewWithJsonResponse(jsonObject);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -272,46 +288,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
         SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Toast.makeText(MainActivity.this, "Refresh is working!", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, "Refresh is working!", Toast.LENGTH_SHORT).show();
                 System.out.println(selectedDate);
 
 
-                RequestHW.sendRequest(login, password, String.valueOf(selectedDate), new RequestHW.Callback() {
+                String selectedDate = sharedPreferences2.getString("selectedDate", "");
+                RequestHW.sendRequest(savedEmail, savedPassword, selectedDate, new RequestHW.Callback() {
                     @Override
                     public void onSuccess(String response) {
                         String unescapedResult = unescapeUnicode(response);
                         System.out.println(unescapedResult);
-                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
+                        System.out.println(selectedDate.split("-")[0]);
+//                        Toast.makeText(MainActivity.this, "Программа отработала хорошо", Toast.LENGTH_LONG).show();
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            String studentName = jsonObject.getString("student_name");
-                            String[] nameParts = studentName.split(" ");
-                            String middleName = nameParts[1];
-                            TextView student = findViewById(R.id.student_name);
-                            student.setText(middleName.toUpperCase());
-                            GetHW getHW = new GetHW(jsonObject);
-                            List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
-
-                            List<GetHW.Entry> homeworkEntries = new ArrayList<>();
-                            for (GetHW.DayEntry dayEntry : diaryEntries) {
-                                if (String.valueOf(day).equals(dayEntry.dayLabel)) { // Update to access dayLabel property
-                                    homeworkEntries.addAll(dayEntry.entries);
-                                }
-                            }
-
-                            // Remove empty rows
-                            List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-                            for (GetHW.Entry entry : homeworkEntries) {
-                                if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
-                                    nonEmptyEntries.add(entry);
-                                }
-                            }
-
-                            GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(MainActivity.this, nonEmptyEntries);
-                            listView.setAdapter(adapter);
+                            populateListViewWithJsonResponse(jsonObject);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -323,67 +318,15 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Ошибка", Toast.LENGTH_LONG).show();
                     }
                 });
-
+                try {
+                    Thread.sleep(2000); // Приостановить выполнение потока на 2000 миллисекунд (2 секунды)
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
 
-
-//        String newName = getIntent().getStringExtra("student_name");
-//        TextView student_name = findViewById(R.id.student_name);
-//        student_name.setText(newName);
-//
-//        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
-//        String jsonResponse = getIntent().getStringExtra("json_response");
-//        String hasStored = getIntent().getStringExtra("hasCred");
-
-//        boolean run = true;
-//        if (jsonResponse == null && Objects.equals(hasStored, "true")) {
-//            run = false;
-//
-//            SharedPreferences sharedPreferences = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
-//            String login = sharedPreferences.getString("login", "");
-//            String password = sharedPreferences.getString("password", "");
-//
-//            // Создаем объект SimpleDateFormat для форматирования даты
-//            dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-//
-//            // Получаем сегодняшнюю дату
-//            Calendar calendar = Calendar.getInstance();
-//            String today = dateFormat.format(calendar.getTime());
-//
-//            RequestHW request = new RequestHW();
-//            request.execute(login, password, today);
-//        }
-//        if (run){
-//
-//            try {
-//                JSONObject jsonObject = new JSONObject(jsonResponse);
-//                GetHW getHW = new GetHW(jsonObject);
-//                List<GetHW.DayEntry> diaryEntries = getHW.diaryEntries;
-//
-//                List<GetHW.Entry> homeworkEntries = new ArrayList<>();
-//                for (GetHW.DayEntry dayEntry : diaryEntries) {
-//                    if (dayEntry.dayLabel.equals("11")) { // Update to access dayLabel property
-//                        homeworkEntries.addAll(dayEntry.entries);
-//                    }
-//                }
-//
-//                // Remove empty rows
-//                List<GetHW.Entry> nonEmptyEntries = new ArrayList<>();
-//                for (GetHW.Entry entry : homeworkEntries) {
-//                    if (!TextUtils.isEmpty(entry.getSubject()) || !TextUtils.isEmpty(entry.getTask())) {
-//                        nonEmptyEntries.add(entry);
-//                    }
-//                }
-//
-//                GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, nonEmptyEntries);
-//                listView.setAdapter(adapter);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
         ListView listView = findViewById(R.id.myListView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -424,14 +367,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void replaceFragment(Fragment fragment) {
-        System.out.println("replaceFragment() is called.");
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frame_container_main, fragment);
-        fragmentTransaction.commit();
-    }
-
     public void replaceFragmentAnimated(Fragment fragment) {
         if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -467,10 +402,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.show_content) {
-                    Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Выбрана функция: Показать подробное содержание", Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.hide_rating) {
-                    // Действие для пункта "Скрыть оценку"
+                    Toast.makeText(MainActivity.this, "Выбрана функция: Скрыть оценку", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -497,4 +432,63 @@ public class MainActivity extends AppCompatActivity {
         }
         return builder.toString();
     }
+
+    public static java.util.Date getDateFromDatePicker(DatePicker datePicker) {
+        int day = datePicker.getDayOfMonth();
+        int month = datePicker.getMonth();
+        int year = datePicker.getYear();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+
+        return calendar.getTime();
+    }
+
+    public void populateListViewWithJsonResponse(JSONObject jsonObject) throws JSONException {
+        List<GetHW.Entry> entries = new ArrayList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
+        String targetDay = sharedPreferences.getString("selectedDate", "");
+        String studentName = jsonObject.getString("student_name").split(" ")[1];
+        TextView textViewName = findViewById(R.id.student_name);
+        textViewName.setText(studentName.toUpperCase());
+//        Toast.makeText(this, studentName, Toast.LENGTH_LONG).show();
+
+
+        try {
+            JSONArray diaryEntries = jsonObject.getJSONArray("diary_entries");
+            for (int i = 0; i < diaryEntries.length(); i++) {
+                JSONObject entryObject = diaryEntries.getJSONObject(i);
+                String dayLabel = entryObject.getString("day_label");
+
+
+                if (dayLabel.equalsIgnoreCase("Day " + targetDay.split("-")[0])) {
+                    JSONArray entriesArray = entryObject.getJSONArray("entries");
+
+                    for (int j = 0; j < entriesArray.length(); j++) {
+                        JSONObject itemObject = entriesArray.getJSONObject(j);
+                        String subject = itemObject.getString("subject");
+                        String task = itemObject.getString("task");
+                        String mark = itemObject.getString("mark");
+
+                        if (!subject.isEmpty() || !task.isEmpty() || !mark.isEmpty()) {
+                            GetHW.Entry entry = new GetHW.Entry(mark, subject, task);
+                            entries.add(entry);
+                        }
+                    }
+
+                    break; // Exit the loop after finding the target day
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        GetHW.HomeworkAdapter adapter = new GetHW.HomeworkAdapter(this, entries);
+        listView.setAdapter(adapter);
+
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        listView.startAnimation(animation);
+
+    }
+
 }

@@ -3,7 +3,6 @@ package ru.romeo558.myprojectrebuild;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,15 +11,14 @@ import java.time.LocalDate;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-    private TextView pepTalkTextView;
-    private ImageView imageView;
+//    private ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        pepTalkTextView = findViewById(R.id.greetings);
+        TextView pepTalkTextView = findViewById(R.id.greetings);
 
         LocalDate currentDate = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
